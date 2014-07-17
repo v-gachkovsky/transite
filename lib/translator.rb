@@ -12,7 +12,7 @@ class Translator
 
   # data must contain hash with keys: key, text
   def translate(data)
-    result = send(data)
+    result = to_yandex(data)
 
     return result unless result.is_a?(Net::HTTPOK)
     result = JSON.parse(result.body, symbolize_names: true)
@@ -29,7 +29,7 @@ class Translator
     result[:text].first
   end
 
-  def send(data)
+  def to_yandex(data)
     yandex_api = URI("https://translate.yandex.net/api/v1.5/tr.json/translate")
     Net::HTTP.post_form(yandex_api, full_params(data))
   end

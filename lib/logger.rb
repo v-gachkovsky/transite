@@ -18,31 +18,21 @@ class Logger
     open_log(@work_log, message)
   end
 
-  log_methods = %w! proccess bigfile error key !
+  log_methods = { proccess:  [@work_log, 'Translate complete'], 
+                  bigfile: [@bigfiles_log, 'File is very big'], 
+                  error: [@error_log, 'Error'], 
+                  key: [@keys_log, 'key used'] }
 
-  log_methods.each do |name|
-    define_method("#{name}_logging") do |arg|
-      case name
-        when 'bigfile'
-          message = "#{current_time} - #{arg}: File is very big"
-          open_log(@bigfiles_log, message)
-        when 'error'
-          message = "#{current_time} - #{arg}: Error"
-          open_log(@error_log, message)
-        when 'proccess'
-          message = "#{current_time} - #{arg}: Translate complete"
-          open_log(@work_log, message)
-        when 'key'
-          message = "#{current_time} - #{arg} key used"
-          open_log(@keys_log, message)
-      end
+  log_methods.each do |name, opts|
+    define_method("#{name.to_s}_logging") do |arg|
+      open_log(opts[0], "#{current_time} - #{arg}: #{opts[1]}")
     end
   end
 
   private
 
-  def open_log(logname, message)
-    File.open("#{logname}", "a") { |log| log.puts message.gsub('../', '')}
+  def open_log(filename, message)
+    File.open(filename, "a") { |log| log.puts message.gsub('../', '')}
   end
 
 end
