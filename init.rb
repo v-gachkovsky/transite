@@ -4,6 +4,7 @@ require_relative 'lib/file_worker'
 require_relative 'lib/yandex_keys'
 
 unless ARGV.size == 3
+  abort "Transite 1.1.0" if ARGV[0] =~ /(:?^-v$)|(:?^--version$)/
   abort "Usage: #{$0} path/to/dir/with/files codepage lang-lang"
 end
 
