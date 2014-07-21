@@ -12,26 +12,35 @@ class Logger
     Time.new.strftime('%d-%m-%Y %H:%M')
   end
 
-    # work_log methods
-  def start_logging
-    message = "#{current_time} - Translate began"
-    open_log(@work_log, message)
+  def start_logging(args)
+    message = "\n#{current_time} - Translate began with params "
+    args.each { |k, v| message << "#{k.to_s}: #{v} " }
+    write_to_log(@work_log, message)
   end
 
-  log_methods = { proccess:  [@work_log, 'Translate complete'], 
-                  bigfile: [@bigfiles_log, 'File is very big'], 
-                  error: [@error_log, 'Error'], 
-                  key: [@keys_log, 'key used'] }
+  # log_methods = { proccess:  [@work_log, 'Translate complete'], 
+  #                 bigfile: [@bigfiles_log, 'File is very big'], 
+  #                 error: [@error_log, 'Error'], 
+  #                 key: [@keys_log, 'key used'] }
+
+  # log methods
+  log_methods = { proccess:  ['log/work.log',     'Translate complete'], 
+                  bigfile:   ['log/bigfiles.log', 'File is very big'], 
+                  error:     ['log/error.log',    'Error'], 
+                  key:       ['log/keys.log',     'key used'] }                  
 
   log_methods.each do |name, opts|
     define_method("#{name.to_s}_logging") do |arg|
-      open_log(opts[0], "#{current_time} - #{arg}: #{opts[1]}")
+      message = "#{current_time} - #{arg}: #{opts[1]}"
+      
+      puts message
+      write_to_log(opts[0], message)
     end
   end
 
   private
 
-  def open_log(filename, message)
+  def write_to_log(filename, message)
     File.open(filename, "a") { |log| log.puts message.gsub('../', '')}
   end
 

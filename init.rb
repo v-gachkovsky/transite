@@ -18,7 +18,7 @@ yandex      = Translator.new(args)
 files       = FileWorker.new(args)
 log         = Logger.new
 
-log.start_logging
+log.start_logging(args)
 
 files.files.sort.each do |file|
   data = { key: yandex_keys.key, text: files.read_file(file, args[:codepage]) }
