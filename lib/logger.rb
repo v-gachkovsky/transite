@@ -13,20 +13,15 @@ class Logger
   end
 
   def start_logging(args)
-    message = "\n#{current_time} - Translate began with params "
-    args.each { |k, v| message << "#{k.to_s}: #{v} " }
+    message = "\n#{current_time} - Translate began with params - "
+    args.each { |k, v| message << "#{k.to_s}: #{v}, " }
+    message.gsub!(/,\s$/, '')
     write_to_log(@work_log, message)
   end
 
-  # log_methods = { proccess:  [@work_log, 'Translate complete'], 
-  #                 bigfile: [@bigfiles_log, 'File is very big'], 
-  #                 error: [@error_log, 'Error'], 
-  #                 key: [@keys_log, 'key used'] }
-
-  # log methods
   log_methods = { proccess:  ['log/work.log',     'Translate complete'], 
                   bigfile:   ['log/bigfiles.log', 'File is very big'], 
-                  error:     ['log/error.log',    'Error'], 
+                  error:     ['log/error.log',    'Can\'t be translate'], 
                   key:       ['log/keys.log',     'key used'] }                  
 
   log_methods.each do |name, opts|

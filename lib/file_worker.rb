@@ -8,8 +8,6 @@ class FileWorker
     @dir    = options[:dir]
     @files  = []
     find_files(@dir, @format)
-
-    @log = Logger.new
   end
 
   def find_files(directory, format)
@@ -33,12 +31,16 @@ class FileWorker
 
   def save_to_file(filename, text)
     File.open(filename, 'w') { |file| file.puts text }
-    @log.proccess_logging(filename)
+    $log.proccess_logging(filename)
   end
 
   def to_utf(content, codepage)
-    return content if codepage == 'utf-8'
-    Iconv.conv("utf-8", "#{@codepage}", content)
+    return content if codepage.downcase == 'utf-8'
+    begin
+      Iconv.conv("utf-8", "#{codepage}", content)
+    rescue
+      abort "Invalid encoding is specified"
+    end
   end
 
 end

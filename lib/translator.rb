@@ -13,20 +13,18 @@ class Translator
   # data must contain hash with keys: key, text
   def translate(data)
     result = to_yandex(data)
-
-    return result unless result.is_a?(Net::HTTPOK)
-    result = JSON.parse(result.body, symbolize_names: true)
-    only_text(result)
+    
+    begin
+      result = JSON.parse(result.body, symbolize_names: true)
+    rescue
+      { code: 422 }
+    end
   end
 
   private
 
   def full_params(data)
     data.merge!(options: @options, format: @format, lang: @lang)
-  end
-
-  def only_text(result)
-    result[:text].first
   end
 
   def to_yandex(data)

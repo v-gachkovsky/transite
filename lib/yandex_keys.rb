@@ -3,15 +3,13 @@ class YandexKeys
 
   def initialize
     @keys = []
-    @log = Logger.new
-
     load_keys
     get_key
   end
 
   def get_key
     @key = @keys.shift
-    @log.key_logging(@key)
+    $log.key_logging(@key)
   end
 
   private
