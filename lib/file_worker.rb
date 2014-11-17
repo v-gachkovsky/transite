@@ -20,7 +20,7 @@ class FileWorker
         downdir = "#{directory}/#{file}"
         find_files(downdir, format)
       else
-        @files << "#{directory}/#{file}" if file =~ /\.(html|htm)$/i 
+        @files << "#{directory}/#{file}" if file =~ /\.(html|htm)$/i
       end
     end
   end
@@ -39,7 +39,7 @@ class FileWorker
     begin
       Iconv.conv("utf-8", "#{codepage}", content)
     rescue
-      abort "Invalid encoding is specified"
+      content
     end
   end
 

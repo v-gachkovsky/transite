@@ -3,9 +3,11 @@ require_relative 'lib/translator'
 require_relative 'lib/file_worker'
 require_relative 'lib/yandex_keys'
 
+require 'future_proof'
+
 unless ARGV.size == 3
   if ARGV[0] =~ /(:?^-v$)|(:?^--version$)/
-    abort "Transite 1.0.0 @ 15.10.2014\nby Vladimir Gachkovsky v.gachkovsky@gmail.com" 
+    abort "Transite 1.1.0 @ 17.10.2014\nby Vladimir Gachkovsky v.gachkovsky@gmail.com" 
   end
   puts "Usage: #{$0} path/to/dir/ [codepage] [lang-lang]"
   puts "\ncodepage: Most popular utf-8, windows-1251..."
@@ -50,26 +52,37 @@ end
 
 $log.start_logging(args)
 
-worker.files.sort.each do |file|
-  data   = { key: $yandex_keys.key, text: worker.read_file(file, args[:codepage]) }
-  result = yandex.translate(data)
-  
-  result_code = check_result(result)
-  
-  if result_code == 0
-    worker.save_to_file(file, only_text(result))
-  
-  elsif result_code == 1
-    $yandex_keys.get_key
-    redo
+thread_pool = FutureProof::ThreadPool.new(8)
 
-  elsif result_code == 2
-    $log.bigfile_logging(file)
-    next
+worker.files.sort.each do |f|
+  thread_pool.submit f do |file|
+    data   = { key: $yandex_keys.key, text: worker.read_file(file, args[:codepage]) }
+    result = yandex.translate(data)
     
-  else
-    $log.error_logging(file)
-    next
-
+    result_code = check_result(result)
+    
+    if result_code == 0
+      worker.save_to_file(file, only_text(result))
+    
+    elsif result_code == 1
+      $yandex_keys.get_key
+      redo
+  
+    elsif result_code == 2
+      $log.bigfile_logging(file)
+      next
+      
+    else
+      $log.error_logging(file)
+      next
+  
+    end
   end
+end
+
+thread_pool.perform
+begin
+  thread_pool.values
+rescue
+
 end
